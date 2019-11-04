@@ -7,7 +7,6 @@ breed [perros perro]
 
 globals ;; Para definir las variables globales.
 [
-
 ]
 
 turtles-own ;; Para definir los atributos de las tortugas.
@@ -29,9 +28,10 @@ links-own ;; Para definir los atributos de los links o conexiones.
 ;; variables de breeds
 ;;********************
 
-ovejas-own
-[
-
+ovejas-own[
+  cm ;; Center of mass: axis
+  r-s-v
+  r-a-v
 ]
 
 perros-own
@@ -58,24 +58,29 @@ to setup ;; Para inicializar la simulación.
   [
     init-zona-meta
   ]
-
-  create-ovejas 50
-  [
-    init-ovejas
-  ]
-
   create-perros 1
   [
     init-perros
   ]
+  create-ovejas 50
+  [
+    init-ovejas
+    set size 3
+  ]
+
+
   reset-ticks  ;; Para inicializar el contador de ticks.
 end
 
 to go ;; Para ejecutar la simulación.
-  ask turtles [t-comportamiento-turtle]
+  ask ovejas [
+    set-center-mass
+    set-shepard-oppsite-dir
+    ovejas-move
+  ]
   tick
   actualizar-salidas
-  if ticks >= 25  ;; En caso de que la simulación esté controlada por cantidad de ticks.
+  if ticks >= 300  ;; En caso de que la simulación esté controlada por cantidad de ticks.
     [stop]
 end
 
@@ -137,6 +142,34 @@ to init-ovejas
   set xcor random 50
   set ycor random 50
   set color white
+  set r-a-v list 0 0
+end
+
+to set-center-mass
+  set cm list (mean [xcor] of ovejas in-radius k) (mean [ycor] of ovejas in-radius k)
+end
+
+to set-near-ovejas-opposite-dir
+  let x 0
+  let y 0
+  let id who
+  ask ovejas in-radius r-a
+  [
+    set x (x + ([xcor] of turtle id - xcor) / (distance turtle id))
+    set y (y + ([ycor] of turtle id - ycor) / (distance turtle id))
+  ]
+  set r-a-v list (x + xcor) (y + ycor)
+end
+
+to set-shepard-oppsite-dir
+  ifelse ((distance one-of perros) < r-s)
+  [set r-s-v list (2 * xcor - [xcor] of turtle 0)(2 * ycor - [ycor] of turtle 0)]
+  [set r-s-v list (xcor)(ycor)]
+end
+
+to ovejas-move
+  facexy (0.1 * (first cm) + 0.8 * (first r-a-v) + 0.1 * first r-s-v) (0.1 * (last cm) + 0.8 * (last r-a-v) + 0.1 * last r-s-v)
+  fd 1
 end
 
 to init-perros
@@ -145,9 +178,9 @@ to init-perros
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-114
+202
 10
-554
+642
 451
 -1
 -1
@@ -204,6 +237,51 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+0
+108
+172
+141
+k
+k
+0
+200
+107.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+0
+180
+172
+213
+r-s
+r-s
+0
+100
+65.0
+5
+1
+NIL
+HORIZONTAL
+
+SLIDER
+62
+243
+234
+276
+r-a
+r-a
+0
+5
+4.0
+2
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## ¿DE QUÉ SE TRATA?
@@ -590,7 +668,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
