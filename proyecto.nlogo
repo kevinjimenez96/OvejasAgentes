@@ -1,5 +1,6 @@
 breed [ovejas oveja]
 breed [perros perro]
+breed [ trees tree ]
 
 ;;*************************
 ;; DEFINICIÓN DE VARIABLES:
@@ -7,6 +8,14 @@ breed [perros perro]
 
 globals ;; Para definir las variables globales.
 [
+  r_s ;; Distancia minima de las ovejas al pastor
+  r_a ;; Distancia minima de interaccion de agentes
+  h   ;; Fuerza relativa de direccion contraria = 0.5
+  c   ;; Fuerza relativa de atraccion = 1.05
+  p_a ;; Fuerza relativa de repulsion de otros agentes = 2
+  p_s ;; Fuerza relativa de repulsion del pastor = 1
+  err ;; Ruido
+  completed?
 ]
 
 turtles-own ;; Para definir los atributos de las tortugas.
@@ -30,6 +39,7 @@ links-own ;; Para definir los atributos de los links o conexiones.
 
 ovejas-own[
   cm ;; Center of mass: axis
+  c_i
   r-s-v
   r-a-v
 ]
@@ -42,7 +52,13 @@ perros-own
 ;;**************************************
 
 to init-globals ;; Para darle valor inicial a las variables globales.
-
+  set r_s 65
+  set r_a 2
+  set h 0.5
+  set c 1.05
+  set p_a 2
+  set p_s 1
+  set completed? false
 end
 
 ;;**********************
@@ -54,6 +70,7 @@ to setup ;; Para inicializar la simulación.
                ;; clear-drawing + clear-all-plots + clear-output.
 
   init-globals ;; Para inicializar variables globales.
+  create-tgts
   ask patches
   [
     init-zona-meta
@@ -62,7 +79,8 @@ to setup ;; Para inicializar la simulación.
   [
     init-perros
   ]
-  create-ovejas 50
+
+  create-ovejas num-sheeps
   [
     init-ovejas
     set size 3
@@ -70,6 +88,15 @@ to setup ;; Para inicializar la simulación.
 
 
   reset-ticks  ;; Para inicializar el contador de ticks.
+end
+
+to create-tgts
+  create-trees num-trees [
+    setxy random-xcor random-ycor
+    set size 3
+    set shape "tree"
+    set color green
+  ]
 end
 
 to go ;; Para ejecutar la simulación.
@@ -149,6 +176,10 @@ to set-center-mass
   set cm list (mean [xcor] of ovejas in-radius k) (mean [ycor] of ovejas in-radius k)
 end
 
+to set-attraction-LCM
+
+end
+
 to set-near-ovejas-opposite-dir
   let x 0
   let y 0
@@ -178,10 +209,10 @@ to init-perros
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-202
-10
-642
-451
+253
+11
+693
+452
 -1
 -1
 2.15
@@ -240,14 +271,14 @@ NIL
 
 SLIDER
 0
-108
+115
 172
-141
+148
 k
 k
 0
 200
-107.0
+5.0
 1
 1
 NIL
@@ -255,9 +286,9 @@ HORIZONTAL
 
 SLIDER
 0
-180
+160
 172
-213
+193
 r-s
 r-s
 0
@@ -269,16 +300,46 @@ NIL
 HORIZONTAL
 
 SLIDER
-62
-243
-234
-276
+0
+207
+172
+240
 r-a
 r-a
 0
 5
-4.0
+2.0
 2
+1
+NIL
+HORIZONTAL
+
+SLIDER
+0
+264
+172
+297
+num-trees
+num-trees
+0
+100
+100.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+0
+339
+172
+372
+num-sheeps
+num-sheeps
+1
+200
+50.0
+1
 1
 NIL
 HORIZONTAL
@@ -668,10 +729,38 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="Experimento 1" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>completed? == true</exitCondition>
+    <metric>count ticks</metric>
+    <enumeratedValueSet variable="r-a">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="r-s">
+      <value value="65"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="k">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-sheeps">
+      <value value="50"/>
+      <value value="100"/>
+      <value value="150"/>
+      <value value="200"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="num-trees">
+      <value value="25"/>
+      <value value="50"/>
+      <value value="100"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
