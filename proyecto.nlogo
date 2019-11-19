@@ -40,11 +40,12 @@ links-own ;; Para definir los atributos de los links o conexiones.
 ovejas-own[
   cm ;; Center of mass: axis
   c_i
+
   r-s-v
   r-a-v
+  l-c-m
   perro-cerca
   vecina-cerca
-  veci
 ]
 
 perros-own
@@ -106,16 +107,10 @@ to go ;; Para ejecutar la simulación.
   ask ovejas [
     huir-de-perro
     alejarse-de-ovejas-vecinas
+    acercarce-centro-masa
 
-    if vecina-cerca
-    [
-      facexy first r-a-v last r-a-v
-      fd 1
-    ]
-     if perro-cerca[
-      facexy first r-s-v last r-s-v
-      fd 1
-    ]
+    facexy first l-c-m last l-c-m
+    fd 1
   ]
   ask perros [
 
@@ -208,8 +203,8 @@ end
 to init-perros
   set size 7
   set color blue
-  set xcor (random 50) + 130
-  set ycor (random 50) + 130
+  set xcor (random 50) + 50
+  set ycor (random 50) + 50
 end
 
 
@@ -231,7 +226,6 @@ to alejarse-de-ovejas-vecinas
   [
     let vecinas list 0 0
     let posOveja (list xcor ycor)
-    let id who
     ask ovejas in-radius r-a
     [
       let posNewVecina (list xcor ycor)
@@ -245,6 +239,21 @@ to alejarse-de-ovejas-vecinas
   [
     set vecina-cerca false
   ]
+end
+
+to acercarce-centro-masa
+
+    let m (count ovejas)
+    let vecinas list 0 0
+    let posOveja (list xcor ycor)
+    ask ovejas
+    [
+      let posNewVecina (list xcor ycor)
+      set vecinas (vector-add vecinas posNewVecina)
+    ]
+    set vecinas (vector-sca-mul vecinas (1 / (count ovejas)))
+    set l-c-m vector-add posOveja vecinas
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
