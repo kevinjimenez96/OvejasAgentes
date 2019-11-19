@@ -108,7 +108,6 @@ to go ;; Para ejecutar la simulación.
     huir-de-perro
     alejarse-de-ovejas-vecinas
     acercarce-centro-masa
-
     if perro-cerca[
       facexy first r-s-v last r-s-v
       fd p_s
@@ -119,11 +118,9 @@ to go ;; Para ejecutar la simulación.
       facexy first r-a-v last r-a-v
       fd p_a
     ]
-
-
   ]
   ask perros [
-
+    fd 1
   ]
   tick
   actualizar-salidas
@@ -252,11 +249,34 @@ to alejarse-de-ovejas-vecinas
 end
 
 to acercarce-centro-masa
-
   let vecinas list  (mean [xcor] of ovejas) (mean [ycor] of ovejas)
   let posOveja (list xcor ycor)
   set l-c-m vector-add posOveja (vector-sub vecinas posOveja)
+end
 
+
+to izq
+  ask turtle 0[
+    facexy 0 ycor
+  ]
+end
+
+to der
+  ask turtle 0[
+    facexy 200 ycor
+  ]
+end
+
+to up
+  ask turtle 0[
+    facexy xcor 200
+  ]
+end
+
+to down
+  ask turtle 0[
+    facexy xcor 0
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -394,6 +414,74 @@ num-sheeps
 1
 NIL
 HORIZONTAL
+
+BUTTON
+8
+415
+71
+448
+NIL
+izq
+NIL
+1
+T
+OBSERVER
+NIL
+A
+NIL
+NIL
+1
+
+BUTTON
+76
+415
+139
+448
+NIL
+der
+NIL
+1
+T
+OBSERVER
+NIL
+D
+NIL
+NIL
+1
+
+BUTTON
+75
+379
+138
+412
+NIL
+up
+NIL
+1
+T
+OBSERVER
+NIL
+W
+NIL
+NIL
+1
+
+BUTTON
+8
+378
+71
+411
+NIL
+down
+NIL
+1
+T
+OBSERVER
+NIL
+S
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## ¿DE QUÉ SE TRATA?
