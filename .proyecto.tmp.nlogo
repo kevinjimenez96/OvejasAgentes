@@ -129,9 +129,7 @@ to-report vector-mul [v1 v2]
   report (first v1 * first v2) + (last v1 * last v2)
 end
 
-to-report vector-sca-mul [v1 v2]
-  report (list (first v1 * v2) (last v1 * v2))
-end
+
 ;;**********************
 ;; Funciones de turtles:
 ;;**********************
