@@ -109,8 +109,18 @@ to go ;; Para ejecutar la simulación.
     alejarse-de-ovejas-vecinas
     acercarce-centro-masa
 
-    facexy first l-c-m last l-c-m
-    fd 1
+    if perro-cerca[
+      facexy first r-s-v last r-s-v
+      fd p_s
+      facexy first l-c-m last l-c-m
+      fd c
+    ]
+    if vecina-cerca [
+      facexy first r-a-v last r-a-v
+      fd p_a
+    ]
+
+
   ]
   ask perros [
 
@@ -245,7 +255,7 @@ to acercarce-centro-masa
 
   let vecinas list  (mean [xcor] of ovejas) (mean [ycor] of ovejas)
   let posOveja (list xcor ycor)
-  set l-c-m vector-add posOveja vecinas
+  set l-c-m vector-add posOveja (vector-sub vecinas posOveja)
 
 end
 @#$#@#$#@
