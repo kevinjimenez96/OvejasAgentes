@@ -42,6 +42,9 @@ ovejas-own[
   c_i
   r-s-v
   r-a-v
+  perro-cerca
+  vecina-cerca
+  veci
 ]
 
 perros-own
@@ -80,7 +83,7 @@ to setup ;; Para inicializar la simulación.
     init-perros
   ]
 
-  create-ovejas 1
+  create-ovejas num-sheeps
   [
     init-ovejas
     set size 3
@@ -101,6 +104,20 @@ end
 
 to go ;; Para ejecutar la simulación.
   ask ovejas [
+    huir-de-perro
+    alejarse-de-ovejas-vecinas
+
+    if vecina-cerca
+    [
+      facexy first r-a-v last r-a-v
+      fd 1
+    ]
+     if perro-cerca[
+      facexy first r-s-v last r-s-v
+      fd 1
+    ]
+  ]
+  ask perros [
 
   ]
   tick
@@ -132,6 +149,11 @@ end
 to-report vector-sca-mul [v1 v2]
   report (list (first v1 * v2) (last v1 * v2))
 end
+
+to-report vector-mag [v1]
+  report sqrt(first v1 ^ 2 + last v1 ^ 2)
+end
+
 ;;**********************
 ;; Funciones de turtles:
 ;;**********************
@@ -154,7 +176,7 @@ end
 
 to init-zona-meta
   if pxcor > 160 and pycor > 160
-  [set pcolor green]
+  [set pcolor red]
 end
 
 to p-comportamiento-patch ;; Cambiar por nombre significativo de comportamiento de patch
@@ -184,14 +206,45 @@ to init-ovejas
 end
 
 to init-perros
-  set size 5
-  set xcor (random 150) + 50
-  set ycor (random 150) + 50
+  set size 7
+  set color blue
+  set xcor (random 50) + 130
+  set ycor (random 50) + 130
 end
 
 
 to huir-de-perro
+  ifelse distance turtle 0 < r_s
+  [
+    let posOveja (list xcor ycor)
+    let posPerro (list ([xcor] of turtle 0) ([ycor] of turtle 0))
+    set r-s-v vector-add posOveja (vector-sub posOveja posPerro)
+    set perro-cerca true
+  ]
+  [
+    set perro-cerca false
+  ]
+end
 
+to alejarse-de-ovejas-vecinas
+  ifelse count ovejas in-radius r-a > 1
+  [
+    let vecinas list 0 0
+    let posOveja (list xcor ycor)
+    let id who
+    ask ovejas in-radius r-a
+    [
+      let posNewVecina (list xcor ycor)
+      let newVecina vector-sub posOveja posNewVecina
+      set newVecina vector-sca-mul newVecina (vector-mag newVecina)
+      set vecinas (vector-add vecinas newVecina)
+    ]
+    set r-a-v vector-add posOveja vecinas
+    set vecina-cerca true
+  ]
+  [
+    set vecina-cerca false
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -279,7 +332,7 @@ r-s
 r-s
 0
 100
-65.0
+100.0
 5
 1
 NIL
@@ -293,7 +346,7 @@ SLIDER
 r-a
 r-a
 0
-5
+8
 2.0
 2
 1
