@@ -243,16 +243,9 @@ end
 
 to acercarce-centro-masa
 
-    let m (count ovejas)
-    let vecinas list 0 0
-    let posOveja (list xcor ycor)
-    ask ovejas
-    [
-      let posNewVecina (list xcor ycor)
-      set vecinas (vector-add vecinas posNewVecina)
-    ]
-    set vecinas (vector-sca-mul vecinas (1 / (count ovejas)))
-    set l-c-m vector-add posOveja vecinas
+  let vecinas list  (mean [xcor] of ovejas) (mean [ycor] of ovejas)
+  let posOveja (list xcor ycor)
+  set l-c-m vector-add posOveja vecinas
 
 end
 @#$#@#$#@
