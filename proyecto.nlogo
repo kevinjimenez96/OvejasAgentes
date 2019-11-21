@@ -15,7 +15,10 @@ globals ;; Para definir las variables globales.
   p_a ;; Fuerza relativa de repulsion de otros agentes = 2
   p_s ;; Fuerza relativa de repulsion del pastor = 1
   err ;; Ruido
+  p_d ;; distancia del perro al gcm
+  gcm ;; Global center of mass
   completed?
+  target
 ]
 
 turtles-own ;; Para definir los atributos de las tortugas.
@@ -62,7 +65,10 @@ to init-globals ;; Para darle valor inicial a las variables globales.
   set c 1.05
   set p_a 2
   set p_s 1
+  set p_d (r_a * sqrt (num-sheeps))
   set completed? false
+  set target list 199 199
+  set gcm list 0 0
 end
 
 ;;**********************
@@ -104,13 +110,14 @@ to create-tgts
 end
 
 to go ;; Para ejecutar la simulación.
+  set gcm centro-masa-ovejas ovejas
   ask ovejas [
     huir-de-perro
     alejarse-de-ovejas-vecinas
-    acercarce-centro-masa
     if perro-cerca[
       facexy first r-s-v last r-s-v
       fd p_s
+      set l-c-m (centro-masa-ovejas ovejas in-radius k)
       facexy first l-c-m last l-c-m
       fd c
     ]
@@ -120,6 +127,8 @@ to go ;; Para ejecutar la simulación.
     ]
   ]
   ask perros [
+    let p-arreo report-punto-recoleccion
+    facexy first p-arreo last p-arreo
     fd 1
   ]
   tick
@@ -155,6 +164,9 @@ to-report vector-mag [v1]
   report sqrt(first v1 ^ 2 + last v1 ^ 2)
 end
 
+to-report vector-uni [v1]
+  report vector-sca-mul v1 (1 / (vector-mag v1))
+end
 ;;**********************
 ;; Funciones de turtles:
 ;;**********************
@@ -200,8 +212,8 @@ end
 ;; Funciones de breeds:
 ;;*********************
 to init-ovejas
-  set xcor random 50
-  set ycor random 50
+  set xcor random 50 + 50
+  set ycor random 50 + 50
   set color white
   set r-a-v list 0 0
 end
@@ -209,8 +221,8 @@ end
 to init-perros
   set size 7
   set color blue
-  set xcor (random 50) + 50
-  set ycor (random 50) + 50
+  set xcor (random 50) + 150
+  set ycor (random 20)
 end
 
 
@@ -247,12 +259,28 @@ to alejarse-de-ovejas-vecinas
   ]
 end
 
-to acercarce-centro-masa
-  let vecinas list  (mean [xcor] of ovejas) (mean [ycor] of ovejas)
-  let posOveja (list xcor ycor)
-  set l-c-m vector-add posOveja (vector-sub vecinas posOveja)
+to-report centro-masa-ovejas [grupo-ovejas]
+  let vecinas list  (mean [xcor] of grupo-ovejas) (mean [ycor] of grupo-ovejas)
+  report vecinas
 end
 
+to-report report-punto-arreo
+  let target-to-gcm vector-sub gcm target
+  let p_arreo vector-sca-mul (vector-uni target-to-gcm) p_d
+  report vector-add p_arreo gcm
+end
+
+to-report report-punto-recoleccion
+  let ovejaMasLejana max-one-of ovejas [distancexy first gcm last gcm]
+  let pos list ([xcor] of ovejaMasLejana) ([ycor] of ovejaMasLejana)
+  let gcm-to-oveja vector-sub pos gcm
+  set gcm-to-oveja vector-uni gcm-to-oveja
+  let p-recoleccion vector-sca-mul gcm-to-oveja r_a
+  report vector-add pos p-recoleccion
+end
+
+
+;; Controles
 
 to izq
   ask turtle 0[
@@ -347,8 +375,8 @@ SLIDER
 k
 k
 0
-200
-5.0
+50
+10.0
 1
 1
 NIL
@@ -363,7 +391,7 @@ r-s
 r-s
 0
 100
-100.0
+65.0
 5
 1
 NIL
@@ -867,7 +895,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
