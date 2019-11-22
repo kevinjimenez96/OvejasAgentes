@@ -53,6 +53,7 @@ ovejas-own[
 
 perros-own
 [
+  oveja-lejos
 ]
 ;;**************************************
 ;; INICIALIZACIÓN DE VARIABLES GLOBALES:
@@ -127,9 +128,19 @@ to go ;; Para ejecutar la simulación.
     ]
   ]
   ask perros [
-    let p-arreo report-punto-recoleccion
-    facexy first p-arreo last p-arreo
-    fd 1
+    revisar-rebano
+    ifelse oveja-lejos
+    [
+      let p-arreo report-punto-recoleccion
+      facexy first p-arreo last p-arreo
+      fd 1
+    ]
+    [
+      let p-arreo report-punto-arreo
+      facexy first p-arreo last p-arreo
+      fd 1
+    ]
+
   ]
   tick
   actualizar-salidas
@@ -277,6 +288,24 @@ to-report report-punto-recoleccion
   set gcm-to-oveja vector-uni gcm-to-oveja
   let p-recoleccion vector-sca-mul gcm-to-oveja r_a
   report vector-add pos p-recoleccion
+end
+
+to revisar-rebano
+  let radio-revision r-a * num-sheeps ^ 0.66
+  let ovejaMasLejana max-one-of ovejas [distancexy first gcm last gcm]
+  ;;let dist-oveja distance ovejaMasLejana ;;necesito sacar la distancia de la oveja mas lejos al gcm
+  let dist-oveja 0
+  ask ovejaMasLejana [
+    set dist-oveja distancexy first gcm last gcm
+  ]
+  ifelse dist-oveja > radio-revision
+  [
+    set oveja-lejos false
+  ]
+  [
+    set oveja-lejos true
+  ]
+
 end
 
 
@@ -895,7 +924,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
