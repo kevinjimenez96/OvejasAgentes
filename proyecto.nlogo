@@ -89,6 +89,7 @@ to setup ;; Para inicializar la simulación.
   create-perros 1
   [
     init-perros
+    set oveja-lejos true
   ]
 
   create-ovejas num-sheeps
@@ -291,7 +292,7 @@ to-report report-punto-recoleccion
 end
 
 to revisar-rebano
-  let radio-revision r-a * num-sheeps ^ 0.66
+  ;;let radio-revision r-a * num-sheeps ^ 0.66
   let ovejaMasLejana max-one-of ovejas [distancexy first gcm last gcm]
   ;;let dist-oveja distance ovejaMasLejana ;;necesito sacar la distancia de la oveja mas lejos al gcm
   let dist-oveja 0
@@ -538,6 +539,32 @@ S
 NIL
 NIL
 1
+
+MONITOR
+904
+102
+964
+147
+Distance
+[oveja-lejos] of perro 0
+17
+1
+11
+
+SLIDER
+864
+292
+1036
+325
+radio-revision
+radio-revision
+0
+100
+74.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## ¿DE QUÉ SE TRATA?
