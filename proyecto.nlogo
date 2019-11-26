@@ -17,7 +17,7 @@ globals ;; Para definir las variables globales.
   err ;; Ruido
   p_d ;; distancia del perro al gcm
   gcm ;; Global center of mass
-  completed?
+  completed
   target
 ]
 
@@ -49,6 +49,7 @@ ovejas-own[
   l-c-m
   perro-cerca
   vecina-cerca
+  pared-cerca
 ]
 
 perros-own
@@ -67,7 +68,7 @@ to init-globals ;; Para darle valor inicial a las variables globales.
   set p_a 2
   set p_s 1
   set p_d (r_a * sqrt (num-sheeps))
-  set completed? false
+  set completed false
   set target list 199 199
   set gcm list 0 0
 end
@@ -81,10 +82,11 @@ to setup ;; Para inicializar la simulación.
                ;; clear-drawing + clear-all-plots + clear-output.
 
   init-globals ;; Para inicializar variables globales.
-  ;;create-tgts
+  ;create-tgts
+  draw-walls
   ask patches
   [
-    init-zona-meta
+    ;;init-zona-meta
   ]
   create-perros 1
   [
@@ -96,6 +98,26 @@ to setup ;; Para inicializar la simulación.
   [
     init-ovejas
     set size 3
+  ]
+
+  crt 1
+  [
+    init-turtle-pastor
+  ]
+
+  crt 1
+  [
+    init-poste-uno
+  ]
+
+  crt 1
+  [
+    init-poste-dos
+  ]
+
+  crt 1
+  [
+    init-poste-tres
   ]
 
 
@@ -114,18 +136,25 @@ end
 to go ;; Para ejecutar la simulación.
   set gcm centro-masa-ovejas ovejas
   ask ovejas [
+    manejar-esquinas
     huir-de-perro
     alejarse-de-ovejas-vecinas
-    if perro-cerca[
-      facexy first r-s-v last r-s-v
-      fd p_s
-      set l-c-m (centro-masa-ovejas ovejas in-radius k)
-      facexy first l-c-m last l-c-m
-      fd c
+    ups-pared
+    ifelse pared-cerca[
+      if perro-cerca[
+        facexy first r-s-v last r-s-v
+        fd p_s
+        set l-c-m (centro-masa-ovejas ovejas in-radius k)
+        facexy first l-c-m last l-c-m
+        fd c
+      ]
+      if vecina-cerca [
+        facexy first r-a-v last r-a-v
+        fd p_a
+      ]
     ]
-    if vecina-cerca [
-      facexy first r-a-v last r-a-v
-      fd p_a
+    [
+      lt random-float 360
     ]
   ]
   ask perros [
@@ -143,8 +172,13 @@ to go ;; Para ejecutar la simulación.
     ]
 
   ]
+  revisar-corral
+
+  if completed = true
+  [stop]
   tick
   actualizar-salidas
+
 
 end
 
@@ -183,8 +217,32 @@ end
 ;; Funciones de turtles:
 ;;**********************
 
-to init-turtle ;; Para inicializar una tortuga a la vez.
+to init-turtle-pastor ;; Para inicializar una tortuga a la vez.
+  set size 7
+  set color green
+  set xcor 200
+  set ycor 200
+end
 
+to init-poste-uno ;; Para inicializar una tortuga a la vez.
+  set size 7
+  set color yellow
+  set xcor 0
+  set ycor 200
+end
+
+to init-poste-dos ;; Para inicializar una tortuga a la vez.
+  set size 7
+  set color cyan
+  set xcor 0
+  set ycor 0
+end
+
+to init-poste-tres ;; Para inicializar una tortuga a la vez.
+  set size 7
+  set color black
+  set xcor 200
+  set ycor 0
 end
 
 to t-comportamiento-turtle ;; Se debería cambiar el nombre para que represente algo signficativo en la simulación.
@@ -201,7 +259,9 @@ end
 
 to init-zona-meta
   if pxcor > 160 and pycor > 160
-  [set pcolor red]
+  [
+    set pcolor red
+  ]
 end
 
 to p-comportamiento-patch ;; Cambiar por nombre significativo de comportamiento de patch
@@ -271,6 +331,22 @@ to alejarse-de-ovejas-vecinas
   ]
 end
 
+to ups-pared
+  let frente patch-ahead 1
+  ifelse frente != NOBODY[
+    ifelse [pcolor] of frente = blue
+  [
+    set pared-cerca false
+  ]
+  [
+    set pared-cerca true
+  ]
+  ][
+    set pared-cerca false
+  ]
+
+end
+
 to-report centro-masa-ovejas [grupo-ovejas]
   let vecinas list  (mean [xcor] of grupo-ovejas) (mean [ycor] of grupo-ovejas)
   report vecinas
@@ -305,6 +381,63 @@ to revisar-rebano
   ]
   [
     set oveja-lejos true
+  ]
+
+end
+
+to revisar-corral
+  ask turtles with [color = green]
+  [
+    let near-sheep turtles in-radius 40
+    if count near-sheep >= num-sheeps
+    [
+      set completed true
+    ]
+  ]
+
+end
+
+
+to draw-walls
+
+  ask patches with [abs pxcor > 170 and abs pycor = 158 ]
+    [ set pcolor blue ]
+  ask patches with [abs pxcor > 170 and abs pycor = 159 ]
+    [ set pcolor blue ]
+
+  ask patches with [abs pxcor = 158 and abs pycor > 170 ]
+    [ set pcolor blue ]
+  ask patches with [abs pxcor = 159 and abs pycor > 170 ]
+    [ set pcolor blue ]
+
+end
+
+to manejar-esquinas
+  ask turtles with [color = yellow]
+  [
+    let near-sheep turtles in-radius 15
+    if count near-sheep > num-sheeps - 20
+    [
+      ask turtle 0 [setxy 0 200]
+    ]
+  ]
+
+  ask turtles with [color = black]
+  [
+    let near-sheep turtles in-radius 15
+    if count near-sheep > num-sheeps - 20
+    [
+      ask turtle 0 [setxy 200 0]
+    ]
+  ]
+
+  ask turtles with [color = cyan]
+  [
+    let near-sheep turtles in-radius 15
+    if count near-sheep > num-sheeps - 20
+    [
+      ask turtle 0 [setxy 0 0]
+    ]
   ]
 
 end
@@ -406,7 +539,7 @@ k
 k
 0
 50
-10.0
+18.0
 1
 1
 NIL
@@ -421,7 +554,7 @@ r-s
 r-s
 0
 100
-65.0
+60.0
 5
 1
 NIL
@@ -451,7 +584,7 @@ num-trees
 num-trees
 0
 100
-100.0
+3.0
 1
 1
 NIL
@@ -560,11 +693,22 @@ radio-revision
 radio-revision
 0
 100
-74.0
+80.0
 1
 1
 NIL
 HORIZONTAL
+
+MONITOR
+823
+206
+880
+251
+READY
+completed
+17
+1
+11
 
 @#$#@#$#@
 ## ¿DE QUÉ SE TRATA?
