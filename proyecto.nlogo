@@ -19,6 +19,7 @@ globals ;; Para definir las variables globales.
   gcm ;; Global center of mass
   completed
   target
+  pared-cerca
 ]
 
 turtles-own ;; Para definir los atributos de las tortugas.
@@ -49,7 +50,7 @@ ovejas-own[
   l-c-m
   perro-cerca
   vecina-cerca
-  pared-cerca
+
 ]
 
 perros-own
@@ -82,7 +83,7 @@ to setup ;; Para inicializar la simulación.
                ;; clear-drawing + clear-all-plots + clear-output.
 
   init-globals ;; Para inicializar variables globales.
-  ;create-tgts
+
   draw-walls
   ask patches
   [
@@ -120,26 +121,30 @@ to setup ;; Para inicializar la simulación.
     init-poste-tres
   ]
 
+  create-tgts
+
 
   reset-ticks  ;; Para inicializar el contador de ticks.
 end
 
 to create-tgts
-  create-trees num-trees [
-    setxy random-xcor random-ycor
-    set size 3
-    set shape "tree"
-    set color green
-  ]
+  ask n-of num-trees patches[set pcolor red]
+  ;create-trees num-trees [
+    ;setxy random-xcor random-ycor
+    ;set size 3
+    ;set shape "tree"
+    ;set color red
+  ;]
 end
 
 to go ;; Para ejecutar la simulación.
   set gcm centro-masa-ovejas ovejas
   ask ovejas [
+    ups-pared
+    detectar-arboles
     manejar-esquinas
     huir-de-perro
     alejarse-de-ovejas-vecinas
-    ups-pared
     ifelse pared-cerca[
       if perro-cerca[
         facexy first r-s-v last r-s-v
@@ -158,6 +163,8 @@ to go ;; Para ejecutar la simulación.
     ]
   ]
   ask perros [
+    ups-pared
+    detectar-arboles
     revisar-rebano
     ifelse oveja-lejos
     [
@@ -389,7 +396,7 @@ to revisar-corral
   ask turtles with [color = green]
   [
     let near-sheep turtles in-radius 40
-    if count near-sheep >= num-sheeps
+    if count near-sheep >= num-sheeps - 40
     [
       set completed true
     ]
@@ -416,7 +423,7 @@ to manejar-esquinas
   ask turtles with [color = yellow]
   [
     let near-sheep turtles in-radius 15
-    if count near-sheep > num-sheeps - 20
+    if count near-sheep > num-sheeps - 50
     [
       ask turtle 0 [setxy 0 200]
     ]
@@ -425,7 +432,7 @@ to manejar-esquinas
   ask turtles with [color = black]
   [
     let near-sheep turtles in-radius 15
-    if count near-sheep > num-sheeps - 20
+    if count near-sheep > num-sheeps - 50
     [
       ask turtle 0 [setxy 200 0]
     ]
@@ -434,12 +441,27 @@ to manejar-esquinas
   ask turtles with [color = cyan]
   [
     let near-sheep turtles in-radius 15
-    if count near-sheep > num-sheeps - 20
+    if count near-sheep > num-sheeps - 50
     [
       ask turtle 0 [setxy 0 0]
     ]
   ]
 
+end
+
+to detectar-arboles
+  let frente patch-ahead 2
+  ifelse frente != NOBODY[
+    ifelse [pcolor] of frente = red
+  [
+    set pared-cerca false
+  ]
+  [
+    set pared-cerca true
+  ]
+  ][
+    set pared-cerca false
+  ]
 end
 
 
@@ -584,7 +606,7 @@ num-trees
 num-trees
 0
 100
-3.0
+100.0
 1
 1
 NIL
@@ -599,7 +621,7 @@ num-sheeps
 num-sheeps
 1
 200
-50.0
+52.0
 1
 1
 NIL
