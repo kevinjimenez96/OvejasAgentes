@@ -396,7 +396,7 @@ to revisar-corral
   ask turtles with [color = green]
   [
     let near-sheep turtles in-radius 40
-    if count near-sheep >= num-sheeps - 40
+    if count near-sheep >= num-sheeps - 20
     [
       set completed true
     ]
@@ -423,7 +423,7 @@ to manejar-esquinas
   ask turtles with [color = yellow]
   [
     let near-sheep turtles in-radius 15
-    if count near-sheep > num-sheeps - 50
+    if count near-sheep > num-sheeps - 20
     [
       ask turtle 0 [setxy 0 200]
     ]
@@ -432,7 +432,7 @@ to manejar-esquinas
   ask turtles with [color = black]
   [
     let near-sheep turtles in-radius 15
-    if count near-sheep > num-sheeps - 50
+    if count near-sheep > num-sheeps - 20
     [
       ask turtle 0 [setxy 200 0]
     ]
@@ -441,7 +441,7 @@ to manejar-esquinas
   ask turtles with [color = cyan]
   [
     let near-sheep turtles in-radius 15
-    if count near-sheep > num-sheeps - 50
+    if count near-sheep > num-sheeps - 20
     [
       ask turtle 0 [setxy 0 0]
     ]
@@ -1125,16 +1125,20 @@ NetLogo 6.1.0
   <experiment name="Experimento 1" repetitions="1" runMetricsEveryStep="true">
     <setup>setup</setup>
     <go>go</go>
-    <exitCondition>completed? == true</exitCondition>
-    <metric>count ticks</metric>
+    <timeLimit steps="30000"/>
+    <exitCondition>0</exitCondition>
+    <metric>ticks</metric>
     <enumeratedValueSet variable="r-a">
       <value value="2"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="r-s">
-      <value value="65"/>
+      <value value="60"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="k">
-      <value value="5"/>
+      <value value="18"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="radio-revision">
+      <value value="80"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="num-sheeps">
       <value value="50"/>
