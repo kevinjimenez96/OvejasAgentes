@@ -621,7 +621,7 @@ num-sheeps
 num-sheeps
 1
 200
-52.0
+150.0
 1
 1
 NIL
@@ -1117,16 +1117,15 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="Experimento 1" repetitions="1" runMetricsEveryStep="true">
+  <experiment name="Experimento 1" repetitions="1" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="30000"/>
-    <exitCondition>0</exitCondition>
     <metric>ticks</metric>
     <enumeratedValueSet variable="r-a">
       <value value="2"/>
